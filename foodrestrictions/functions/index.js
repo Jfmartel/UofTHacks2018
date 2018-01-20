@@ -3,6 +3,17 @@
 
 const functions = require('firebase-functions');
 const DialogflowApp = require('actions-on-google').DialogflowApp;
+import Food from './food';
+
+function sampleFoodApi(){
+		return Food.getFoodItemUpc('kelloggs rice krispies squares').then(function(upc){
+			setTimeout(function() {
+				Food.getUpcIngredients(upc).then(function(ingr){
+					return Food.checkIngredients(ingr, ['gelatin'])
+				})
+			}, 1000)
+		})
+}
 
 function retrieveFoodIngredients (food) {
     // todo
