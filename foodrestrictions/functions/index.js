@@ -17,7 +17,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     const app = new DialogflowApp({request: request, response: response});
     const WELCOME_INTENT = 'input.welcome';
-    // const RESTRICTION_INTENT = 'input.ingredient';
 
     // check if food falls under category (such as vegetarian)
     const CHECK_FOOD_CAT = "check_food_cat";
@@ -31,7 +30,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     const SET_FOOD_INEDIBLE = "set_food_inedible";
 
     function welcomeIntent (app) {
-        app.ask('Welcome to food restrictions! What allergies do you have?',
+        app.ask('Welcome to food restrictions. Which foods are you unable to eat?',
             ['What ingredients are you allergic to?', 'What are you allergic to?', 'We can stop here. See you soon.']);
     }
 
@@ -45,16 +44,21 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             app.userStorage.restrictions = [ingredient];
         }
 
-        app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else you cannot eat?',
-            ['What else can you not eat?', 'Any more food restrictions?', 'We can talk later']);
+        app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else I can do?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
 
     }
 
     function addLifestyleRestrictions (app) {
 
         const lifestyle = app.getArgument('food_category');
-        app.tell('Ok, I will remember that you are ' + lifestyle);
+
+        // for now, only one lifestyle (vegetarian, vegan)? Is there any reason to store more than one?
         app.userStorage.lifestyle = lifestyle;
+
+        app.ask('Ok, I will remember that you are ' + lifestyle + '. What else can I help you with?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+
     }
 
     function checkIfFoodRestricted (app) {
@@ -97,6 +101,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     function erasePreferences(app) {
         app.userStorage.lifestyle = null;
         app.userStorage.restrictions = null;
+
+        app.ask("Your preferences have been erased. Anything else I can do for you?");
     }
 
     const actionMap = new Map();
