@@ -12,25 +12,32 @@ function delay(t, v) {
 }
 
 function sampleFoodApi(){
-		return Food.getFoodItemUpc('goat').then(function(upc){
+		return Food.getFoodItemUpc('kelloggs rice krispies squares').then(function(upc){
 			return delay(1000).then(function() {
 				return Food.getUpcIngredients(upc).then(function(ingr){
-					return Food.checkIngredients(ingr, ['vegan'])
+					return Food.checkIngredients(ingr, ['gelatin'])
 				})
 			})
 		})
 }
 
-sampleFoodApi().then(function(res){
-    console.log(res)
-})
+function containsRestrictedIngredients (food, restricted_ingredients) {
 
-function retrieveFoodIngredients (food) {
-    // todo
-}
+    /*return Food.getFoodItemUpc(food).then(function(upc){
+        setTimeout(function() {
+            Food.getUpcIngredients(upc).then(function(ingr){
+                return Food.checkIngredients(ingr, restricted_ingredients)
+            })
+        }, 1000)
+    })*/
 
-function getLifestyleRestrictedIngredients (lifestyle) {
-    // todo
+    return Food.getFoodItemUpc(food).then(function(upc){
+        return delay(1000).then(function() {
+            return Food.getUpcIngredients(upc).then(function(ingr){
+                return Food.checkIngredients(ingr, restricted_ingredients)
+            })
+        })
+    })
 }
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
@@ -85,11 +92,28 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     function checkIfFoodRestricted (app) {
         const food = app.getArgument('food');
-        const ingredients = retrieveFoodIngredients(food);
+        let restricted_ingredients = app.userStorage.restrictions;
+        const lifestyle = app.userStorage.lifestyle;
 
-        // look up this food and check if any restricted ingredients are in it.
-        // should check lifestyle and individual ingredients
-        // todo
+        if (lifestyle) {
+            if (restricted_ingredients) {
+                restricted_ingredients.push(lifestyle);
+            }
+
+            else {
+                restricted_ingredients = [lifestyle]
+            }
+        }
+
+        if (restricted_ingredients) {
+            if (containsRestrictedIngredients(food, restricted_ingredients)) {
+                app.ask(food + ' contains ingredients you cannot eat. What else can I help you with?',
+                    ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+            }
+        }
+
+        app.ask(food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
     }
 
     function checkFoodConformsToLifestyle(app) {
@@ -97,11 +121,13 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         const food = app.getArgument('food');
         const lifestyle = app.getArgument('food_category');
 
-        const lifeStyleRestricted = getLifestyleRestrictedIngredients(lifestyle);
-        const foodIngredients = retrieveFoodIngredients(food);
+        if (containsRestrictedIngredients(food, [lifestyle])) {
+            app.ask(food + ' is not ' + lifestyle + '. What else can I help you with?',
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+        }
 
-        // check that none of foodIngredients is in lifeStyleRestricted
-        // todo
+        app.ask(food + ' is ' + lifestyle + '. What else can I help you with?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
     }
 
     function checkFoodContainsIngredient(app) {
@@ -118,15 +144,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             app.tell("No, " + food + "does not contain " + ingredient);
 
         }
-    }
-
-    // E.g. Is chicken vegetarian
-    function checkFoodCategory(app){
-        // Get arguments from user
-        const food = app.getArgument('food');
-        const food_category = app.getArgument('food_category');
-        
-        // Check
     }
 
     function erasePreferences(app) {
@@ -147,3 +164,4 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     app.handleRequest(actionMap);
 
 });
+
