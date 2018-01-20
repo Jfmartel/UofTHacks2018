@@ -2,15 +2,21 @@
 
 const functions = require('firebase-functions');
 const DialogflowApp = require('actions-on-google').DialogflowApp;
-import Food from './food';
+const Food = require('./food');
+
+function delay(t, v) {
+   return new Promise(function(resolve) {
+       setTimeout(resolve.bind(null, v), t)
+   });
+}
 
 function sampleFoodApi(){
 		return Food.getFoodItemUpc('kelloggs rice krispies squares').then(function(upc){
-			setTimeout(function() {
-				Food.getUpcIngredients(upc).then(function(ingr){
+			return delay(1000).then(function() {
+				return Food.getUpcIngredients(upc).then(function(ingr){
 					return Food.checkIngredients(ingr, ['gelatin'])
 				})
-			}, 1000)
+			})
 		})
 }
 
