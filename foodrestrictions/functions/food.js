@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const FoodRestrictions = require('../restrictions/food_restrictions.json');
+const FoodRestrictions = require('./food_restrictions.json');
 
 function constructUri(baseUrl, args) {
   var apiArgs = {
