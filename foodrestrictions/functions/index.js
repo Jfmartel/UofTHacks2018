@@ -28,7 +28,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     const CHECK_FOOD_INEDIBLE = "check_food_inedible";
     const ERASE_PREFERENCES = "erase_preference";
     const SET_FOOD_CATEGORY = "set_food_category";
-    const SET_FOOD_INEDIBLE = "input.inedible_ingredient";
+    const SET_FOOD_INEDIBLE = "set_food_inedible";
 
     function welcomeIntent (app) {
         app.ask('Welcome to food restrictions! What allergies do you have?',
@@ -39,14 +39,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         const ingredient = app.getArgument('ingredient');
 
         if (app.userStorage.restrictions) {
-            app.userStorage.restrictions.add(ingredient);
+            app.userStorage.restrictions.push(ingredient);
         }
         else {
-            app.userStorage.restrictions = [];
-            app.userStorage.restrictions.add(ingredient)
+            app.userStorage.restrictions = [ingredient];
         }
 
-        app.tell('Ok, I will add ' + ingredient + ' to your list of restricted ingredients');
+        app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else you cannot eat?',
+            ['What else can you not eat?', 'Any more food restrictions?', 'We can talk later']);
 
     }
 
