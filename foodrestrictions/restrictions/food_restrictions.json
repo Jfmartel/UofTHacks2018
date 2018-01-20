@@ -11,4 +11,16 @@
 			"oyster", "periwinkle", "scallop", "squid", "escargot"],
 		"exceptions" : ["vegan cheese", "soy cheese", "nut cheese", "rice cheese", "seed cheese", "soy milk", "almond milk", "hemp milk", "oat milk", "coconut milk", "rice milk", "almond-coconut milk", "quinoa milk", "flax milk"]
 	},
+	"vegetarian" : {
+		"restrictions" : ["gelatin", "bear", "beef", "bone", "buffalo", "bison", "calf" 
+			"caribou", "goat", "ham", "horse", "kangaroo", "lamb", "marrow", "moose", "mutton", "opossum", "organ", 
+			"pork", "bacon", "rabbit", "snake", "squirrel", "sweetbread", "tripe", "turtle", "veal", "venison", "chicken", "chicken liver", "cornish game hen", "duck", "duck liver", "emu", "gizzards", "goose", "goose liver", "grouse", 
+			"guinea hen", "liver", "organs", "ostrich", "partridge", "pheasant", "quail", "squab", "turkey", "anchovy", "basa", "bass", "black cod/sablefish", "blowfish", "bluefish", 
+			"bombay duck", "bream", "brill", "butter fish", "catfish", "cod (see also pacific cod and atlantic cod)", "dogfish", "dorade", "eel", "flounder", "grouper", "haddock", "hake", 
+			"halibut", "herring", "ilish", "john dory", "kingfish", "lamprey", "lingcod", "mackerel", "mahi mahi", "monkfish", "mullet", "orange roughy", "parrotfish", "patagonian toothfish", 
+			"pike", "pilchard", "pollock", "pomfret", "pompano", "sablefish", "salmon", "sanddab", "sardine", "sea bass", "shad", "shark", "skate", "smelt", "snakehead", "snapper", "sole", 
+			"sprat", "suiter-fish", "sturgeon", "surimi", "swordfish", "tilapia", "tilefish", "trout", "tuna", "turbot", "wahoo", "whitefish", "whiting", "lobster", "shrimp", "crab", "crayfish", "prawn", "roe", "cockle", "cuttlefish", "loco", "mussel", "octopus", 
+			"oyster", "periwinkle", "scallop", "squid", "escargot"],
+		"exceptions" : []
+	}
 }

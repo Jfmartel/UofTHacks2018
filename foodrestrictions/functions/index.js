@@ -1,5 +1,5 @@
 'use strict';
-import checkFoodCategory from "./checkFoodCategory.js";
+//import checkFoodCategory from "./checkFoodCategory.js";
 
 const functions = require('firebase-functions');
 const DialogflowApp = require('actions-on-google').DialogflowApp;
