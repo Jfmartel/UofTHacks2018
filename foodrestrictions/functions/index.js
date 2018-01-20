@@ -12,14 +12,18 @@ function delay(t, v) {
 }
 
 function sampleFoodApi(){
-		return Food.getFoodItemUpc('kelloggs rice krispies squares').then(function(upc){
+		return Food.getFoodItemUpc('broccoli').then(function(upc){
 			return delay(1000).then(function() {
 				return Food.getUpcIngredients(upc).then(function(ingr){
-					return Food.checkIngredients(ingr, ['gelatin'])
+					return Food.checkIngredients(ingr, ['vegan'])
 				})
 			})
 		})
 }
+
+sampleFoodApi().then(function(res){
+    console.log(res)
+})
 
 function retrieveFoodIngredients (food) {
     // todo
@@ -114,6 +118,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             app.tell("No, " + food + "does not contain " + ingredient);
 
         }
+    }
+
+    // E.g. Is chicken vegetarian
+    function checkFoodCategory(app){
+        // Get arguments from user
+        const food = app.getArgument('food');
+        const food_category = app.getArgument('food_category');
+        
+        // Check
     }
 
     function erasePreferences(app) {

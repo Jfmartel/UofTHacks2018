@@ -56,7 +56,7 @@ function getUpcIngredients(upc) {
   .then(function(data){
     return (data.numFound > 0) ? data.productsArray[0].ingredients.split(',')
       .map(function(i) {
-        return i.toLowerCase()
+        return i.toLowerCase().trim()
       })
     : null;
   })
@@ -80,7 +80,7 @@ function checkIngredients(ingredients, restrictions) {
 function isIngredientAllowed(myRestriction, ingredient) {
   var restrictionsMaster = {
     'vegan' : {
-      'restrictions' : ['milk', 'eggs', 'beef'],
+      'restrictions' : ['milk', 'eggs', 'beef', 'gelatin'],
       'exceptions' : ['soy milk', 'google']
     }
   }
@@ -91,8 +91,10 @@ function isIngredientAllowed(myRestriction, ingredient) {
     return true
   }
   else{
-    return !restrictionsMaster[myRestriction].restrictions.contains(ingredient) ||
-           restrictionsMaster[myRestriction].exceptions.contains(ingredient)
+    console.log(ingredient)
+    console.log(restrictionsMaster[myRestriction].exceptions.includes(ingredient))
+    return !restrictionsMaster[myRestriction].restrictions.includes(ingredient) ||
+           restrictionsMaster[myRestriction].exceptions.includes(ingredient)
   }
 }
 
