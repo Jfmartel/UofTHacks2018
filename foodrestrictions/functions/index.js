@@ -12,14 +12,18 @@ function delay(t, v) {
 }
 
 function sampleFoodApi(){
-		return Food.getFoodItemUpc('kelloggs rice krispies squares').then(function(upc){
+		return Food.getFoodItemUpc('orange juice').then(function(upc){
 			return delay(1000).then(function() {
 				return Food.getUpcIngredients(upc).then(function(ingr){
-					return Food.checkIngredients(ingr, ['gelatin'])
+					return Food.checkIngredients(ingr, ['vegetarian'])
 				})
 			})
 		})
 }
+
+// sampleFoodApi().then(function(res){
+//     console.log("result:" + res);
+// })
 
 function containsRestrictedIngredients (food, restricted_ingredients) {
 
