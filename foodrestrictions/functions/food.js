@@ -56,7 +56,7 @@ function getUpcIngredients(upc) {
   .then(function(data){
     return (data.numFound > 0) ? data.productsArray[0].ingredients.split(',')
       .map(function(i) {
-        return i.toLowerCase()
+        return i.toLowerCase().trim();
       })
     : null;
   })
@@ -91,8 +91,8 @@ function isIngredientAllowed(myRestriction, ingredient) {
     return true
   }
   else{
-    return !restrictionsMaster[myRestriction].restrictions.contains(ingredient) ||
-           restrictionsMaster[myRestriction].exceptions.contains(ingredient)
+    return !restrictionsMaster[myRestriction].restrictions.includes(ingredient) ||
+           restrictionsMaster[myRestriction].exceptions.includes(ingredient)
   }
 }
 
