@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const FoodRestrictions = require('../restrictions/food_restrictions.json');
 
 function constructUri(baseUrl, args) {
   var apiArgs = {
@@ -78,23 +79,18 @@ function checkIngredients(ingredients, restrictions) {
 }
 
 function isIngredientAllowed(myRestriction, ingredient) {
-  var restrictionsMaster = {
-    'vegan' : {
-      'restrictions' : ['milk', 'eggs', 'beef', 'gelatin'],
-      'exceptions' : ['soy milk', 'google']
-    }
-  }
+  // console.log(FoodRestrictions)
   if (ingredient.includes(myRestriction)) { //restriction matches simple ingredient
     return false
   }
-  else if (!Object.keys(restrictionsMaster).some(function(r) { return r === myRestriction })){ //restriction category not found?
+  else if (!Object.keys(FoodRestrictions).some(function(r) { return r === myRestriction })){ //restriction category not found?
     return true
   }
   else{
     console.log(ingredient)
-    console.log(restrictionsMaster[myRestriction].exceptions.includes(ingredient))
-    return !restrictionsMaster[myRestriction].restrictions.includes(ingredient) ||
-           restrictionsMaster[myRestriction].exceptions.includes(ingredient)
+    console.log(FoodRestrictions[myRestriction].exceptions.includes(ingredient))
+    return !FoodRestrictions[myRestriction].restrictions.includes(ingredient) ||
+           FoodRestrictions[myRestriction].exceptions.includes(ingredient)
   }
 }
 

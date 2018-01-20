@@ -12,7 +12,7 @@ function delay(t, v) {
 }
 
 function sampleFoodApi(){
-		return Food.getFoodItemUpc('broccoli').then(function(upc){
+		return Food.getFoodItemUpc('goat').then(function(upc){
 			return delay(1000).then(function() {
 				return Food.getUpcIngredients(upc).then(function(ingr){
 					return Food.checkIngredients(ingr, ['vegan'])
