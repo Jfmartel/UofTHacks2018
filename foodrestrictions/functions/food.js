@@ -1,25 +1,28 @@
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 
 function constructUri(baseUrl, args) {
-  let apiArgs = {
+  var apiArgs = {
     'api_key':'k5xhrkhwq7czbr9g8uzdca7c',
     'sid': '3e1fec7c-7dba-4b43-bd7a-969cec446308',
     'f': 'json'
   }
 
-  let url = baseUrl + '?'
-  let arg
-  for (let [key, value] of Object.entries(Object.assign(apiArgs, args))) {
-     arg = key + '=' + value + '&'
-     url += arg
+  var url = baseUrl + '?'
+  var arg
+  var uriArgs = Object.assign(apiArgs, args)
+  for (var key in uriArgs) {
+     if (uriArgs.hasOwnProperty(key)) {
+       arg = key + '=' + uriArgs[key] + '&'
+       url += arg
+     }
   }
-  console.log(url.slice(0,-1))
+
   return url.slice(0, -1); // to remove final '&' symbol
 }
 
 function getFoodItemUpc(foodName) {
 
-  let uriArgs = {
+  var uriArgs = {
     'q': foodName.replace(/ /g, '+'),
     'n': 1,
     's': 0
@@ -38,7 +41,7 @@ function getFoodItemUpc(foodName) {
 
 function getUpcIngredients(upc) {
 
-  let uriArgs = {
+  var uriArgs = {
     'u': upc,
     'n': 1,
     's': 0
@@ -51,7 +54,11 @@ function getUpcIngredients(upc) {
   })
   .then(function(response){ return response.json(); })
   .then(function(data){
-    return (data.numFound > 0) ? data.productsArray[0].ingredients.split(',').map(i => i.toLowerCase()) : null;
+    return (data.numFound > 0) ? data.productsArray[0].ingredients.split(',')
+      .map(function(i) {
+        return i.toLowerCase()
+      })
+    : null;
   })
 
   //'SUGAR; WHEAT FLOUR; SKIM MILK; COCOA BUTTER; CHOCOLATE; PALM KERNEL OIL; MILK FAT; LACTOSE (MILK); \
@@ -71,7 +78,7 @@ function checkIngredients(ingredients, restrictions) {
 }
 
 function isIngredientAllowed(myRestriction, ingredient) {
-  let restrictionsMaster = {
+  var restrictionsMaster = {
     'vegan' : {
       'restrictions' : ['milk', 'eggs', 'beef'],
       'exceptions' : ['soy milk', 'google']
@@ -80,7 +87,7 @@ function isIngredientAllowed(myRestriction, ingredient) {
   if (ingredient.includes(myRestriction)) { //restriction matches simple ingredient
     return false
   }
-  else if (!Object.keys(restrictionsMaster).some( r => r === myRestriction )){ //restriction category not found?
+  else if (!Object.keys(restrictionsMaster).some(function(r) { return r === myRestriction })){ //restriction category not found?
     return true
   }
   else{
@@ -89,4 +96,4 @@ function isIngredientAllowed(myRestriction, ingredient) {
   }
 }
 
-export default {getFoodItemUpc, getUpcIngredients, checkIngredients}
+module.exports = {getFoodItemUpc, getUpcIngredients, checkIngredients}
