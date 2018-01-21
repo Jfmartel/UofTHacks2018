@@ -41,16 +41,13 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
   else{
     return Food.getFoodItemUpc(food).then(function(upc){
       if(!upc){
-        console.log("gsdfsdf")
         return Promise.resolve(null);
       }
       else {
-        return delay(1500).then(function() {
-                return Food.getUpcIngredients(upc).then(function(ingr){
-                    return Food.checkIngredients(ingr, restricted_ingredients)
-                })
-            })
-        }
+        return Food.getUpcIngredients(upc).then(function(ingr){
+            return Food.checkIngredients(ingr, restricted_ingredients)
+        })
+      }
     })
   }
 }
@@ -63,9 +60,9 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
 //     console.log("result:" + res);
 // })
 
-containsRestrictedIngredients('kelloggs rice krispies squares', ['gelatin']).then(function(res){
-    console.log("result:" + res);
-})
+// containsRestrictedIngredients('kelloggs rice krispies squares', ['gelatin']).then(function(res){
+//     console.log("result:" + res);
+// })
 
 // sampleFoodApi().then(function(res){
 //   console.log(res)
@@ -145,14 +142,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 }
                 else{
                     app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
-                        ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);    
+                        ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
                 }
             })
 
         }
         else{
         app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
-            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);    
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
         }
 
     });
@@ -168,7 +165,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             // Religious cases
             if(lifestyle == "halal"){
                app.ask('Ok, I will remember that you eat ' + lifestyle + ' food. What else can I help you with?',
-                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']); 
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
             }
             else{
                 app.ask('Ok, I will remember that you are ' + lifestyle + '. What else can I help you with?',

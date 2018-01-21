@@ -2,9 +2,8 @@ const fetch = require('node-fetch');
 
 function constructUri(baseUrl, args) {
   var apiArgs = {
-    'api_key':'k5xhrkhwq7czbr9g8uzdca7c',
-    'sid': '3e1fec7c-7dba-4b43-bd7a-969cec446308',
-    'f': 'json'
+    'api_key':'vvNxeLawkFLOkRRKyJgEnJQSgZhgGXlCiAI7CPBj',
+    'format': 'json'
   }
 
   var url = baseUrl + '?'
@@ -24,40 +23,34 @@ function getFoodItemUpc(foodName) {
 
   var uriArgs = {
     'q': foodName.replace(/ /g, '+'),
-    'n': 1,
-    's': 0
+    'max': 10,
+    'sort': 'r'
   }
-
-  return fetch(constructUri("http://api.foodessentials.com/searchprods", uriArgs),
-  {
-      method: "POST",
-      data: ''
-  })
-  .then(function(response){ 
-    console.log(response)
-    return response.json(); })
-  .then(function(data){
-    console.log(data)
-    return (data.numFound > 0) ? data.productsArray[0].upc : null;
-  })
-}
-
-function getUpcIngredients(upc) {
-
-  var uriArgs = {
-    'u': upc,
-    'n': 1,
-    's': 0
-  }
-
-  return fetch(constructUri("http://api.foodessentials.com/labelarray", uriArgs),
+  return fetch(constructUri("https://api.nal.usda.gov/ndb/search/", uriArgs),
   {
       method: "POST",
       data: ''
   })
   .then(function(response){ return response.json(); })
   .then(function(data){
-    return (data.numFound > 0) ? data.productsArray[0].ingredients.split(',')
+    return (!!data.list) ? data.list.item[0].ndbno : null;
+  })
+}
+
+function getUpcIngredients(upc) {
+
+  var uriArgs = {
+    'ndbno': upc,
+    'type': 'f'
+  }
+  return fetch(constructUri("https://api.nal.usda.gov/ndb/V2/reports", uriArgs),
+  {
+      method: "POST",
+      data: ''
+  })
+  .then(function(response){ return response.json(); })
+  .then(function(data){
+    return (data.count > 0) ? data.foods[0].food.ing.desc.split(',')
       .map(function(i) {
         return i.toLowerCase().trim();
       })
