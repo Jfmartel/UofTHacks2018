@@ -1,0 +1,6 @@
+{
+	"paleo" : {
+		"description" : "The Paleo diet is also known as the caveman diet, and consists of food that can be hunted and gathered. I can help guide you on the foundations of the diet, if you choose.",
+		"restrictions" : ["1900", "2000", "0100"]
+	}
+}

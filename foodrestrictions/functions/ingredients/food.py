@@ -3,8 +3,6 @@ import requests
 from datetime import datetime, timedelta
 import json
 
-from api.aggregate import rune
-from drf_react.settings import JSON_FOLDER
 BASE_HEADERS = {
     "Origin": "https://developer.riotgames.com",
     "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -143,7 +141,7 @@ BASE_HEADERS = {
 
 def do_magic():
     base_url = 'https://api.nal.usda.gov/ndb/search?format=json&sort=n&max=1000&api_key=vvNxeLawkFLOkRRKyJgEnJQSgZhgGXlCiAI7CPBj&fg='
-    cats = ['1300','2000','0100','0400','1500','0900','0200','1700','1600','1200','1000','0500','0700','1100']
+    cats = ['1900', '1300','2000','0100','0400','1500','0900','0200','1700','1600','1200','1000','0500','0700','1100']
     igrd_dict = {}
     for c in cats:
         print(c)

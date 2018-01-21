@@ -5,6 +5,7 @@ const functions = require('firebase-functions');
 const DialogflowApp = require('actions-on-google').DialogflowApp;
 const Food = require('./food');
 const Ingredients = require('./ingredients/ingredients.json');
+const Diets = require('./diets.json');
 
 function delay(t, v) {
    return new Promise(function(resolve) {
@@ -88,7 +89,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     // WELCOME INTENT
     actionMap.set('input.welcome', function welcomeIntent (app) {
-        app.ask('Welcome to food restrictions. Ask me about whether food contains certain ingredients, or set your dietary restrictions so I can watch out for them.',
+        app.ask('Welcome to Recipeek. Ask me about whether food contains certain ingredients, or set your dietary restrictions so I can watch out for them. I can even tell you about a few diets if you ask me.',
             ['What ingredients are you allergic to?', 'What are you allergic to?', 'We can stop here. See you soon.']);
     });
 
@@ -305,6 +306,33 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         "I can do for you?", "We can talk later"]);
 
     });
+
+     // DIET LIST
+    actionMap.set('list_diets', function listDiets (app) {
+        var AvailableDiets = "";
+        for(var diet in Diets){
+            if(Object.keys(Diets).indexOf(diet) == Object.keys(Diets).length - 2){
+                AvailableDiets += diet + " and ";
+            }
+            else if(Object.keys(Diets).indexOf(diet) == Object.keys(Diets).length - 1){
+                AvailableDiets += diet + ".";
+            }
+            else{
+                AvailableDiets += diet + ",";
+            }
+        }
+        app.ask('Here are some diets I can tell you more about: ' + AvailableDiets + ' If you want to know more about a diet, say "tell me about the diet". Is there anything else I can do?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+    });
+
+    // DESCRIBE DIET
+    actionMap.set('describe_diet', function describeDiet (app) {
+        const Diet = app.getArgument('diet');
+        const DietDescription = Diets[Diet].description;
+        app.ask(DietDescription + 'If you would like to go on this diet, say; "I want to go on the ' + Diet + ' diet". Can I help you with something else?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+    });
+
     app.handleRequest(actionMap);
 
 });
