@@ -1,6 +1,5 @@
 import os
 import requests
-from datetime import datetime, timedelta
 import json
 
 BASE_HEADERS = {
