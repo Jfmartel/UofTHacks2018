@@ -45,7 +45,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     // WELCOME INTENT
     actionMap.set('input.welcome', function welcomeIntent (app) {
-        app.ask('Welcome to food restrictions. Which foods are you unable to eat?',
+        app.ask('Welcome to food restrictions. Ask me about whether food contain certain ingredients, or set your dietary restrictions so I can watch out for them.',
             ['What ingredients are you allergic to?', 'What are you allergic to?', 'We can stop here. See you soon.']);
     });
 
@@ -54,18 +54,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     actionMap.set('set_food_inedible', function addIndividualRestriction (app) {
         const ingredient = app.getArgument('ingredient');
 
-        if (app.userStorage.restrictions && !app.userStorage.restrictions.includes(ingredient)) {
+        // If restrictions is null, create an empty list
+        if(!app.userStorage.restrictions){
+            app.userStorage.restrictions = [];
+        }
+
+        // Then handle case
+        if (!app.userStorage.restrictions.includes(ingredient)) {
             app.userStorage.restrictions.push(ingredient);
             app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else I can do?',
             ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
         }
-        else if(app.userStorage.restrictions.includes(ingredient)){
+        else{
             app.ask('It looks like ' + ingredient + ' is already on your list of restricted ingredients. Is there anything else I can do?',
-            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
-        }
-        else {
-            app.userStorage.restrictions = [ingredient];
-            app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else I can do?',
             ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
         }
 
@@ -159,18 +160,37 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
     });
 
+    // CHECK DIETARY STORED LIFESTYLE
+    actionMap.set('get_lifestyle', function checkDietaryLifestyle(app) {
+        if(app.userStorage.lifestyle){
+            app.ask('Your lifestyle diet is ' + app.userStorage.lifestyle + '. What else can I help you with?',
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+        }
+        else{
+            app.ask('You don\'t seem to have any lifestyle dietary restrictions. If you want to set one, you could say "I am vegan" and I will remember this for future use. What else can I help you with?',
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+        }
+    });
+
     // CHECK STORED DIETARY RESTRICTIONS/PREFERENCES
     actionMap.set('get_preferences', function checkDietaryRestrictions(app) {
 
-        let response = "You have not indicated any restrictions.";
+        let response = "You have not indicated any restrictions. If you would like you add one, you could say something like 'I am vegetarian' or 'I am allergic to peanuts' " +
+        "and I will remember it for future interactions.";
+
         if (app.userStorage.lifestyle) {
             response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
 
             if (app.userStorage.restrictions) {
                 response = response + " Also, you have specified that you cannot eat";
 
-                for (var restriction of app.userStorage.restrictions) {
-                    response = response + " "  + restriction + ",";
+               for (var restriction of app.userStorage.restrictions) {
+                    if(app.userStorage.restrictions.indexOf(restriction) == app.userStorage.restrictions.length - 2){
+                        response = response + " "  + restriction + " and";
+                    }
+                    else{
+                        response = response + " "  + restriction + ",";
+                    }
                 }
 
                 response = response.substring(0, response.length -1) + ".";
@@ -178,16 +198,29 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         }
 
         if (app.userStorage.restrictions) {
-                response = response + " You have specified that you cannot eat";
 
-                for (var restriction of app.userStorage.restrictions) {
+            if (app.userStorage.lifestyle) {
+                response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
+            }
+            else{
+                response = "";
+            }
+
+            response = response + " Also, you have specified that you cannot eat";
+
+           for (var restriction of app.userStorage.restrictions) {
+                if(app.userStorage.restrictions.indexOf(restriction) == app.userStorage.restrictions.length - 2){
+                    response = response + " "  + restriction + " and";
+                }
+                else{
                     response = response + " "  + restriction + ",";
                 }
+            }
 
-                response = response.substring(0, response.length -1) + ".";
+            response = response.substring(0, response.length -1) + ".";
         }
 
-        app.ask(response + " Is there anything I can help you with?", ["Do you need any more help?", "Is there anything" +
+        app.ask(response + " Is there anything else I can help you with?", ["Do you need any more help?", "Is there anything" +
         "I can do for you?", "We can talk later"]);
 
     });
