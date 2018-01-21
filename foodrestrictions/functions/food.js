@@ -33,8 +33,11 @@ function getFoodItemUpc(foodName) {
       method: "POST",
       data: ''
   })
-  .then(function(response){ return response.json(); })
+  .then(function(response){ 
+    console.log(response)
+    return response.json(); })
   .then(function(data){
+    console.log(data)
     return (data.numFound > 0) ? data.productsArray[0].upc : null;
   })
 }

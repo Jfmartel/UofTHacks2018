@@ -23,10 +23,6 @@ function sampleFoodApi(){
 		})
 }
 
-sampleFoodApi().then(function(res){
-    console.log("result:" + res);
-})
-
 function isBasicIngredient(food) {
   for (var category in Ingredients) {
     if (Ingredients.hasOwnProperty(category)) {
@@ -40,24 +36,42 @@ function isBasicIngredient(food) {
 
 function containsRestrictedIngredients (food, restricted_ingredients) {
   if (isBasicIngredient(food)) {
-    return Food.checkIngredients(food, restricted_ingredients)
+    return Promise.resolve(Food.checkIngredients([food], restricted_ingredients))
   }
   else{
     return Food.getFoodItemUpc(food).then(function(upc){
-      return delay(1000).then(function() {
-          return Food.getUpcIngredients(upc).then(function(ingr){
-              return Food.checkIngredients(ingr, restricted_ingredients)
-          })
-      })
+      if(!upc){
+        console.log("gsdfsdf")
+        return Promise.resolve(null);
+      }
+      else {
+        return delay(1500).then(function() {
+                return Food.getUpcIngredients(upc).then(function(ingr){
+                    return Food.checkIngredients(ingr, restricted_ingredients)
+                })
+            })
+        }
     })
   }
 }
+
+// containsRestrictedIngredients('containsRestrictedIngredients', ['peanuts']).then(function(res){
+//     console.log("result:" + res);
+// })
+
+// containsRestrictedIngredients('carrots', ['peanuts']).then(function(res){
+//     console.log("result:" + res);
+// })
+
+containsRestrictedIngredients('kelloggs rice krispies squares', ['gelatin']).then(function(res){
+    console.log("result:" + res);
+})
 
 // sampleFoodApi().then(function(res){
 //   console.log(res)
 // })
 
-console.log(isBasicIngredient('broccoli'));
+//console.log(isBasicIngredient('broccoli'));
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     console.log('Request headers: ' + JSON.stringify(request.headers));
@@ -117,14 +131,30 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         }
 
         if (restricted_ingredients) {
-            if (containsRestrictedIngredients(food, copiedList)) {
-                app.ask("No, " + food + ' contains ingredients you cannot eat. What else can I help you with?',
-                    ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
-            }
+            containsRestrictedIngredients(food, copiedList).then(function(ans){
+                console.log("SSS")
+                console.log(ans)
+                if (!Boolean(ans)){
+                    app.ask("I'm sorry, I couldn't seem to find " + food + ". Is there anything else I can check for you?",
+                        ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+
+                }
+                else if (Boolean(ans) && !ans){
+                    app.ask("No, " + food + ' contains ingredients you cannot eat. What else can I help you with?',
+                        ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+                }
+                else{
+                    app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+                        ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);    
+                }
+            })
+
+        }
+        else{
+        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);    
         }
 
-        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
-            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
     });
 
     // SET LIFESTYLE (VEGAN, VEGETARIAN)
