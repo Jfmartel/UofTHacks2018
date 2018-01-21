@@ -45,7 +45,9 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
       }
       else {
         return Food.getUpcIngredients(upc).then(function(ingr){
-            return Food.checkIngredients(ingr, restricted_ingredients)
+            return (ingr === null) ?
+            Promise.resolve(null) :
+            Food.checkIngredients(ingr, restricted_ingredients);
         })
       }
     })
@@ -63,7 +65,7 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
 // })
 
 //Bad -> no results
-containsRestrictedIngredients('sjkhfjfdghdkf//', ['peanuts']).then(function(res){
+containsRestrictedIngredients('hamburgers', ['vegetarian']).then(function(res){
     console.log("result:" + res);
 })
 
@@ -73,9 +75,9 @@ containsRestrictedIngredients('sjkhfjfdghdkf//', ['peanuts']).then(function(res)
 // })
 
 //Bad -> complex restricted ingredient
-// containsRestrictedIngredients('kelloggs rice krispies squares', ['vegetarian']).then(function(res){
-//     console.log("result:" + res);
-// })
+containsRestrictedIngredients('coca cola drink', ['broccoli']).then(function(res){
+    console.log("result:" + res);
+})
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     console.log('Request headers: ' + JSON.stringify(request.headers));
@@ -204,16 +206,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         const food = app.getArgument('food');
         const ingredient = app.getArgument('ingredient');
 
-        if (containsRestrictedIngredients(food, ingredient)) {
-            app.ask("Yes, " + food + " contains " + ingredient + ". Can I help you with something else?",
-                ["Can I help you?", "What would you like to do?", "We can chat again later"]);
-        }
+        containsRestrictedIngredients(food, [ingredient]).then(function(ans){
+          ans ?
+          app.ask("No, " + food + "does not contain " + ingredient + ". Can I help you with something else?",
+              ["Can I help you?", "What would you like to do?", "We can chat again later"]):
+          app.ask("Yes, " + food + " contains " + ingredient + ". Can I help you with something else?",
+              ["Can I help you?", "What would you like to do?", "We can chat again later"]);
 
-        else {
-            app.ask("No, " + food + "does not contain " + ingredient + ". Can I help you with something else?",
-                ["Can I help you?", "What would you like to do?", "We can chat again later"]);
 
-        }
+        })
     });
 
     // CHECK FOOD DOESN'T VIOLATE LIFESTYLE
@@ -222,13 +223,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         const food = app.getArgument('food');
         const lifestyle = app.getArgument('food_category');
 
-        if (containsRestrictedIngredients(food, [lifestyle])) {
-            app.ask(food + ' is not ' + lifestyle + '. What else can I help you with?',
-                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
-        }
+        containsRestrictedIngredients(food, [lifestyle]).then(function(ans){
+          ans ?
+          app.ask(food + ' is ' + lifestyle + '. What else can I help you with?',
+              ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']):
+          app.ask(food + ' is not ' + lifestyle + '. What else can I help you with?',
+              ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
 
-        app.ask(food + ' is ' + lifestyle + '. What else can I help you with?',
-            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+        })
     });
 
     // CHECK DIETARY STORED LIFESTYLE
