@@ -79,24 +79,27 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         let restricted_ingredients = app.userStorage.restrictions;
         const lifestyle = app.userStorage.lifestyle;
 
+        let copiedList = [];
         if (lifestyle) {
             if (restricted_ingredients) {
-                restricted_ingredients.push(lifestyle);
+
+                copiedList = [...restricted_ingredients];
+                copiedList.push(lifestyle);
             }
 
             else {
-                restricted_ingredients = [lifestyle];
+                copiedList = [lifestyle];
             }
         }
 
         if (restricted_ingredients) {
-            if (containsRestrictedIngredients(food, restricted_ingredients)) {
-                app.ask(food + ' contains ingredients you cannot eat. What else can I help you with?',
+            if (containsRestrictedIngredients(food, copiedList)) {
+                app.ask("No, " + food + ' contains ingredients you cannot eat. What else can I help you with?',
                     ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
             }
         }
 
-        app.ask(food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
             ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
     });
 
@@ -164,13 +167,13 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
 
             if (app.userStorage.restrictions) {
-                response = response + " Also, you have specified that you cannot eat ";
+                response = response + " Also, you have specified that you cannot eat";
 
                 for (var restriction of app.userStorage.restrictions) {
-                    response = response + restriction + ", ";
+                    response = response + " "  + restriction + ",";
                 }
 
-                response.replace(/..$/,".");
+                response = response.substring(0, response.length -1) + ".";
             }
         }
 
