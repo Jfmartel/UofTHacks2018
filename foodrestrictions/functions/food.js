@@ -1,5 +1,6 @@
 let fetch = require('node-fetch');
 const FoodRestrictions = require('./food_restrictions.json')
+var Ingredients = require('./ingredients/ingredients.json')
 
 function constructUri(baseUrl, args) {
   var apiArgs = {
@@ -75,9 +76,27 @@ function isIngredientAllowed(myRestriction, ingredient) {
     return true
   }
   else{
-    return !FoodRestrictions[myRestriction].restrictions.includes(ingredient) ||
-           FoodRestrictions[myRestriction].exceptions.includes(ingredient)
+    return checkAgainstRestriction(myRestriction, ingredient);
   }
+}
+
+function checkAgainstRestriction(myRestriction, ingredient) {
+  if (FoodRestrictions[myRestriction].exceptions.includes(ingredient)) {
+    return true
+  }
+  for (var item of FoodRestrictions[myRestriction].restrictions){
+    if (!isNaN(item))  {
+      if (Ingredients[item].includes(ingredient)){
+        return false
+      }
+    }
+    else {
+      if (item == ingredient){
+        return false
+      }
+    }
+  }
+  return true
 }
 
 module.exports = {getFoodItemUpc, getUpcIngredients, checkIngredients}

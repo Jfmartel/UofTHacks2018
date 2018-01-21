@@ -44,6 +44,8 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
         return Promise.resolve(null);
       }
       else {
+        console.log("UPC")
+        console.log(upc)
         return Food.getUpcIngredients(upc).then(function(ingr){
             return (ingr === null) ?
             Promise.resolve(null) :
@@ -65,9 +67,9 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
 // })
 
 //Bad -> no results
-containsRestrictedIngredients('hamburgers', ['vegetarian']).then(function(res){
-    console.log("result:" + res);
-})
+// containsRestrictedIngredients('pepperoni', ['vegetarian']).then(function(res){
+//     console.log("result:" + res);
+// })
 
 //Bad -> basic restricted ingredient
 // containsRestrictedIngredients('gelatin', ['vegetarian']).then(function(res){
@@ -75,9 +77,9 @@ containsRestrictedIngredients('hamburgers', ['vegetarian']).then(function(res){
 // })
 
 //Bad -> complex restricted ingredient
-containsRestrictedIngredients('coca cola drink', ['broccoli']).then(function(res){
-    console.log("result:" + res);
-})
+// containsRestrictedIngredients('coca cola drink', ['broccoli']).then(function(res){
+//     console.log("result:" + res);
+// })
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     console.log('Request headers: ' + JSON.stringify(request.headers));

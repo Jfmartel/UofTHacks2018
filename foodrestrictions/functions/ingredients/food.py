@@ -1,10 +1,7 @@
 import os
 import requests
-from datetime import datetime, timedelta
 import json
 
-from api.aggregate import rune
-from drf_react.settings import JSON_FOLDER
 BASE_HEADERS = {
     "Origin": "https://developer.riotgames.com",
     "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
