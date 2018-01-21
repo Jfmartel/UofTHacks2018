@@ -45,7 +45,9 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
       }
       else {
         return Food.getUpcIngredients(upc).then(function(ingr){
-            return Food.checkIngredients(ingr, restricted_ingredients)
+            return (ingr === null) ?
+            Promise.resolve(null) :
+            Food.checkIngredients(ingr, restricted_ingredients);
         })
       }
     })
@@ -63,7 +65,7 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
 // })
 
 //Bad -> no results
-containsRestrictedIngredients('sjkhfjfdghdkf//', ['peanuts']).then(function(res){
+containsRestrictedIngredients('hamburgers', ['vegetarian']).then(function(res){
     console.log("result:" + res);
 })
 
