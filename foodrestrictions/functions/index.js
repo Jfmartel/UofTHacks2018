@@ -161,19 +161,31 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
                 }
                 else if (!ans){
-                    app.ask("No, " + food + ' contains ingredients you cannot eat. What else can I help you with?',
+                    app.ask("Be careful, " + food + ' contains ingredients you cannot eat. What else can I help you with?',
                         ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
                 }
                 else{
-                    app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+                    if(app.getArgument('meal')){
+                        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. Enjoy your ' + app.getArgument('meal') +  '! What else can I help you with?',
                         ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+                    }
+                    else{
+                        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+                            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+                    }
                 }
             })
 
         }
         else{
-        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
-            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+            if(app.getArgument('meal')){
+                    app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. Enjoy your ' + app.getArgument('meal') +  '! What else can I help you with?',
+                    ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+                }
+                else{
+                    app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+                        ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+            }
         }
 
     });
@@ -187,7 +199,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             app.userStorage.lifestyle = lifestyle;
 
             // Religious cases
-            if(lifestyle == "halal"){
+            if(lifestyle == "halal" || lifestyle == "kosher"){
                app.ask('Ok, I will remember that you eat ' + lifestyle + ' food. What else can I help you with?',
                 ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
             }
@@ -259,7 +271,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         "and I will remember it for future interactions.";
 
         if (app.userStorage.lifestyle) {
-            if(app.userStorage.lifestyle == "halal"){
+            if(app.userStorage.lifestyle == "halal" || app.userStorage.lifestyle == "kosher"){
                 response = "You have indicated that you eat " + app.userStorage.lifestyle + " food.";
             }
             else{
@@ -284,7 +296,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         if (app.userStorage.restrictions) {
 
-            if(app.userStorage.lifestyle == "halal"){
+            if(app.userStorage.lifestyle == "halal" || app.userStorage.lifestyle == "kosher"){
                 response = "You have indicated that you eat " + app.userStorage.lifestyle + " food.";
             }
             else if(!app.userStorage.lifestyle){
