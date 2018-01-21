@@ -120,7 +120,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         const food = app.getArgument('food');
         let restricted_ingredients = app.userStorage.restrictions;
         const lifestyle = app.userStorage.lifestyle;
-        console.log("AAAAAAAAAAAAAAAAAAA")
         let copiedList = [];
         if (lifestyle) {
             if (restricted_ingredients) {
@@ -130,17 +129,17 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             }
 
             else {
-                copiedList = [lifestyle];
+                copiedList.push(lifestyle);
             }
         }
-        if (restricted_ingredients) {
+        if (copiedList) {
             containsRestrictedIngredients(food, copiedList).then(function(ans){
-                if (!Boolean(ans)){
+                if (ans === null){
                     app.ask("I'm sorry, I couldn't seem to find " + food + ". Is there anything else I can check for you?",
                         ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
 
                 }
-                else if (Boolean(ans) && !ans){
+                else if (!ans){
                     app.ask("No, " + food + ' contains ingredients you cannot eat. What else can I help you with?',
                         ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
                 }
