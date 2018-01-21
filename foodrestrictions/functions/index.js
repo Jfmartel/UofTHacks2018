@@ -140,19 +140,31 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
                 }
                 else if (!ans){
-                    app.ask("No, " + food + ' contains ingredients you cannot eat. What else can I help you with?',
+                    app.ask("Be careful, " + food + ' contains ingredients you cannot eat. What else can I help you with?',
                         ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
                 }
                 else{
-                    app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+                    if(app.getArgument('meal')){
+                        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. Enjoy your ' + app.getArgument('meal') +  '! What else can I help you with?',
                         ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+                    }
+                    else{
+                        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+                            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+                    }
                 }
             })
 
         }
         else{
-        app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
-            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+            if(app.getArgument('meal')){
+                    app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. Enjoy your ' + app.getArgument('meal') +  '! What else can I help you with?',
+                    ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+                }
+                else{
+                    app.ask("Yes, " + food + ' does not contain any ingredients you should worry about. What else can I help you with?',
+                        ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+            }
         }
 
     });
