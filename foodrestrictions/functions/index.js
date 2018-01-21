@@ -52,23 +52,30 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
   }
 }
 
-// containsRestrictedIngredients('containsRestrictedIngredients', ['peanuts']).then(function(res){
-//     console.log("result:" + res);
-// })
-
+//Good -> Basic food
 // containsRestrictedIngredients('carrots', ['peanuts']).then(function(res){
 //     console.log("result:" + res);
 // })
 
-// containsRestrictedIngredients('kelloggs rice krispies squares', ['gelatin']).then(function(res){
+//Good -> complex food
+// containsRestrictedIngredients('kelloggs rice krispies cereal', ['vegetarian']).then(function(res){
 //     console.log("result:" + res);
 // })
 
-// sampleFoodApi().then(function(res){
-//   console.log(res)
+//Bad -> no results
+// containsRestrictedIngredients('containsRestrictedIngredients', ['peanuts']).then(function(res){
+//     console.log("result:" + res);
 // })
 
-//console.log(isBasicIngredient('broccoli'));
+//Bad -> basic restricted ingredient
+// containsRestrictedIngredients('gelatin', ['vegetarian']).then(function(res){
+//     console.log("result:" + res);
+// })
+
+//Bad -> complex restricted ingredient
+// containsRestrictedIngredients('kelloggs rice krispies squares', ['vegetarian']).then(function(res){
+//     console.log("result:" + res);
+// })
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     console.log('Request headers: ' + JSON.stringify(request.headers));
@@ -113,7 +120,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         const food = app.getArgument('food');
         let restricted_ingredients = app.userStorage.restrictions;
         const lifestyle = app.userStorage.lifestyle;
-
+        console.log("AAAAAAAAAAAAAAAAAAA")
         let copiedList = [];
         if (lifestyle) {
             if (restricted_ingredients) {
@@ -126,11 +133,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 copiedList = [lifestyle];
             }
         }
-
         if (restricted_ingredients) {
             containsRestrictedIngredients(food, copiedList).then(function(ans){
-                console.log("SSS")
-                console.log(ans)
                 if (!Boolean(ans)){
                     app.ask("I'm sorry, I couldn't seem to find " + food + ". Is there anything else I can check for you?",
                         ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);

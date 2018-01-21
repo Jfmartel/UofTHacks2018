@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const FoodRestrictions = require('./food_restrictions.json')
 
 function constructUri(baseUrl, args) {
   var apiArgs = {
@@ -66,7 +67,6 @@ function checkIngredients(ingredients, restrictions) {
             //or: an ingredient ( if not found?)
   //Restrictions is a list of categories / items?
   //Ingredients list is a string (as returned by getUpcIngredients), or is it massaged into a list before?
-  console.log(ingredients)
   return restrictions.every(function(restriction) {         //for each restriction
     return ingredients.every(function(ingredient) {           //check if any ingredient breaks restriction
       return isIngredientAllowed(restriction, ingredient);
@@ -75,21 +75,15 @@ function checkIngredients(ingredients, restrictions) {
 }
 
 function isIngredientAllowed(myRestriction, ingredient) {
-  var restrictionsMaster = {
-    'vegan' : {
-      'restrictions' : ['milk', 'eggs', 'beef'],
-      'exceptions' : ['soy milk', 'google']
-    }
-  }
   if (ingredient.includes(myRestriction)) { //restriction matches simple ingredient
     return false
   }
-  else if (!Object.keys(restrictionsMaster).some(function(r) { return r === myRestriction })){ //restriction category not found?
+  else if (!Object.keys(FoodRestrictions).some(function(r) { return r === myRestriction })){ //restriction category not found?
     return true
   }
   else{
-    return !restrictionsMaster[myRestriction].restrictions.includes(ingredient) ||
-           restrictionsMaster[myRestriction].exceptions.includes(ingredient)
+    return !FoodRestrictions[myRestriction].restrictions.includes(ingredient) ||
+           FoodRestrictions[myRestriction].exceptions.includes(ingredient)
   }
 }
 
