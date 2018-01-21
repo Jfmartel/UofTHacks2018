@@ -95,7 +95,7 @@ function secondaryLookup (food, restricted_ingredients) {
 // })
 
 //Bad -> complex restricted ingredient
-// containsRestrictedIngredients('coca cola', ['vegetarian']).then(function(res){
+// containsRestrictedIngredients('campbells chicken noodle soup', ['vegan']).then(function(res){
 //     console.log("result:" + res);
 // })
 

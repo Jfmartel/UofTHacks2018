@@ -85,7 +85,7 @@ function checkAgainstRestriction(myRestriction, ingredient) {
   }
   for (var item of FoodRestrictions[myRestriction].restrictions){
     if (!isNaN(item))  {
-      if (Ingredients[item].includes(ingredient)){
+      if (Ingredients[item].some(function(i) { return ingredient.includes(i) || i.includes(ingredient); })){
         return false
       }
     }
