@@ -11,6 +11,7 @@ function delay(t, v) {
    });
 }
 
+
 function sampleFoodApi(){
 		return Food.getFoodItemUpc('orange juice').then(function(upc){
 			return delay(1000).then(function() {
@@ -26,15 +27,6 @@ function sampleFoodApi(){
 // })
 
 function containsRestrictedIngredients (food, restricted_ingredients) {
-
-    /*return Food.getFoodItemUpc(food).then(function(upc){
-        setTimeout(function() {
-            Food.getUpcIngredients(upc).then(function(ingr){
-                return Food.checkIngredients(ingr, restricted_ingredients)
-            })
-        }, 1000)
-    })*/
-
     return Food.getFoodItemUpc(food).then(function(upc){
         return delay(1000).then(function() {
             return Food.getUpcIngredients(upc).then(function(ingr){
@@ -49,25 +41,17 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     console.log('Request body: ' + JSON.stringify(request.body));
 
     const app = new DialogflowApp({request: request, response: response});
-    const WELCOME_INTENT = 'input.welcome';
+    const actionMap = new Map();
 
-    // check if food falls under category (such as vegetarian)
-    const CHECK_FOOD_CAT = "check_food_cat";
-
-    // check if food contains ingredient
-    const CHECK_FOOD_CONTAINS = "check_food_contains";
-
-    const CHECK_FOOD_INEDIBLE = "check_food_inedible";
-    const ERASE_PREFERENCES = "erase_preference";
-    const SET_FOOD_CATEGORY = "set_food_category";
-    const SET_FOOD_INEDIBLE = "set_food_inedible";
-
-    function welcomeIntent (app) {
+    // WELCOME INTENT
+    actionMap.set('input.welcome', function welcomeIntent (app) {
         app.ask('Welcome to food restrictions. Which foods are you unable to eat?',
             ['What ingredients are you allergic to?', 'What are you allergic to?', 'We can stop here. See you soon.']);
-    }
+    });
 
-    function addIndividualRestriction (app) {
+
+    // SET ALLERGY/RESTRICTED ITEM
+    actionMap.set('set_food_inedible', function addIndividualRestriction (app) {
         const ingredient = app.getArgument('ingredient');
 
         if (app.userStorage.restrictions) {
@@ -80,21 +64,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else I can do?',
             ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
 
-    }
+    });
 
-    function addLifestyleRestrictions (app) {
-
-        const lifestyle = app.getArgument('food_category');
-
-        // for now, only one lifestyle (vegetarian, vegan)? Is there any reason to store more than one?
-        app.userStorage.lifestyle = lifestyle;
-
-        app.ask('Ok, I will remember that you are ' + lifestyle + '. What else can I help you with?',
-            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
-
-    }
-
-    function checkIfFoodRestricted (app) {
+    // CHECK IF FOOD IS RESTRICTED
+    actionMap.set('check_food_inedible', function checkIfFoodRestricted (app) {
         const food = app.getArgument('food');
         let restricted_ingredients = app.userStorage.restrictions;
         const lifestyle = app.userStorage.lifestyle;
@@ -105,7 +78,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             }
 
             else {
-                restricted_ingredients = [lifestyle]
+                restricted_ingredients = [lifestyle];
             }
         }
 
@@ -118,9 +91,51 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         app.ask(food + ' does not contain any ingredients you should worry about. What else can I help you with?',
             ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
-    }
+    });
 
-    function checkFoodConformsToLifestyle(app) {
+    // SET LIFESTYLE (VEGAN, VEGETARIAN)
+    actionMap.set('set_food_category', function addLifestyleRestrictions (app) {
+
+            const lifestyle = app.getArgument('food_category');
+
+            // for now, only one lifestyle (vegetarian, vegan)? Is there any reason to store more than one?
+            app.userStorage.lifestyle = lifestyle;
+
+            app.ask('Ok, I will remember that you are ' + lifestyle + '. What else can I help you with?',
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+
+        }
+    );
+
+    // ERASE SAVED RESTRICTIONS / LIFESTYLE
+    actionMap.set('erase_preferences',  function erasePreferences(app) {
+        app.userStorage.lifestyle = null;
+        app.userStorage.restrictions = null;
+
+        app.ask("Your preferences have been erased. Anything else I can do for you?");
+    });
+
+
+    // CHECK IF FOOD CONTAINS GIVEN INGREDIENT
+    actionMap.set('check_food_contains_ingredient', function checkFoodContainsIngredient(app) {
+
+        const food = app.getArgument('food');
+        const ingredient = app.getArgument('ingredient');
+
+        if (containsRestrictedIngredients(food, ingredient)) {
+            app.ask("Yes, " + food + " contains " + ingredient + ". Can I help you with something else?",
+                ["Can I help you?", "What would you like to do?", "We can chat again later"]);
+        }
+
+        else {
+            app.ask("No, " + food + "does not contain " + ingredient + ". Can I help you with something else?",
+                ["Can I help you?", "What would you like to do?", "We can chat again later"]);
+
+        }
+    });
+
+    // CHECK FOOD DOESN'T VIOLATE LIFESTYLE
+    actionMap.set('check_food_cat', function checkFoodConformsToLifestyle(app) {
 
         const food = app.getArgument('food');
         const lifestyle = app.getArgument('food_category');
@@ -132,39 +147,30 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         app.ask(food + ' is ' + lifestyle + '. What else can I help you with?',
             ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
-    }
+    });
 
-    function checkFoodContainsIngredient(app) {
+    // CHECK STORED DIETARY RESTRICTIONS/PREFERENCES
+    actionMap.set('get_preferences', function checkDietaryRestrictions(app) {
 
-        const food = app.getArgument('food');
-        const ingredient = app.getArgument('ingredient');
-        const ingredients = retrieveFoodIngredients(food);
+        let response = "You have not indicated any restrictions.";
+        if (app.userStorage.lifestyle) {
+            response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
 
-        if (ingredients.contains(ingredient)) {
-            app.tell("Yes, " + food + " contains " + ingredient);
+            if (app.userStorage.restrictions) {
+                response = response + " Also, you have specified that you cannot eat ";
+
+                for (var restriction of app.userStorage.restrictions) {
+                    response = response + restriction + ", ";
+                }
+
+                response.replace(/..$/,".");
+            }
         }
 
-        else {
-            app.tell("No, " + food + "does not contain " + ingredient);
+        app.ask(response + " Is there anything I can help you with?", ["Do you need any more help?", "Is there anything" +
+        "I can do for you?", "We can talk later"]);
 
-        }
-    }
-
-    function erasePreferences(app) {
-        app.userStorage.lifestyle = null;
-        app.userStorage.restrictions = null;
-
-        app.ask("Your preferences have been erased. Anything else I can do for you?");
-    }
-
-    const actionMap = new Map();
-    actionMap.set(WELCOME_INTENT, welcomeIntent);
-    actionMap.set(SET_FOOD_INEDIBLE, addIndividualRestriction);
-    actionMap.set(CHECK_FOOD_INEDIBLE, checkIfFoodRestricted);
-    actionMap.set(SET_FOOD_CATEGORY, addLifestyleRestrictions);
-    actionMap.set(ERASE_PREFERENCES, erasePreferences);
-    actionMap.set(CHECK_FOOD_CONTAINS, checkFoodContainsIngredient);
-    actionMap.set(CHECK_FOOD_CAT, checkFoodConformsToLifestyle);
+    });
     app.handleRequest(actionMap);
 
 });
