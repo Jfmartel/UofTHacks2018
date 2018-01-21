@@ -68,7 +68,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     // WELCOME INTENT
     actionMap.set('input.welcome', function welcomeIntent (app) {
-        app.ask('Welcome to food restrictions. Ask me about whether food contain certain ingredients, or set your dietary restrictions so I can watch out for them.',
+        app.ask('Welcome to food restrictions. Ask me about whether food contains certain ingredients, or set your dietary restrictions so I can watch out for them.',
             ['What ingredients are you allergic to?', 'What are you allergic to?', 'We can stop here. See you soon.']);
     });
 
@@ -135,9 +135,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             // for now, only one lifestyle (vegetarian, vegan)? Is there any reason to store more than one?
             app.userStorage.lifestyle = lifestyle;
 
-            app.ask('Ok, I will remember that you are ' + lifestyle + '. What else can I help you with?',
+            // Religious cases
+            if(lifestyle == "halal"){
+               app.ask('Ok, I will remember that you eat ' + lifestyle + ' food. What else can I help you with?',
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']); 
+            }
+            else{
+                app.ask('Ok, I will remember that you are ' + lifestyle + '. What else can I help you with?',
                 ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
-
+            }
         }
     );
 
@@ -202,7 +208,12 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         "and I will remember it for future interactions.";
 
         if (app.userStorage.lifestyle) {
-            response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
+            if(app.userStorage.lifestyle == "halal"){
+                response = "You have indicated that you eat " + app.userStorage.lifestyle + " food.";
+            }
+            else{
+                response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
+            }
 
             if (app.userStorage.restrictions) {
                 response = response + " Also, you have specified that you cannot eat";
@@ -222,11 +233,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         if (app.userStorage.restrictions) {
 
-            if (app.userStorage.lifestyle) {
-                response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
+            if(app.userStorage.lifestyle == "halal"){
+                response = "You have indicated that you eat " + app.userStorage.lifestyle + " food.";
+            }
+            else if(!app.userStorage.lifestyle){
+                response = "";
             }
             else{
-                response = "";
+                response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
             }
 
             response = response + " Also, you have specified that you cannot eat";
