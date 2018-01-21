@@ -8,7 +8,7 @@
 			"halibut", "herring", "ilish", "john dory", "kingfish", "lamprey", "lingcod", "mackerel", "mahi mahi", "monkfish", "mullet", "orange roughy", "parrotfish", "patagonian toothfish", 
 			"pike", "pilchard", "pollock", "pomfret", "pompano", "sablefish", "salmon", "sanddab", "sardine", "sea bass", "shad", "shark", "skate", "smelt", "snakehead", "snapper", "sole", 
 			"sprat", "suiter-fish", "sturgeon", "surimi", "swordfish", "tilapia", "tilefish", "trout", "tuna", "turbot", "wahoo", "whitefish", "whiting", "lobster", "shrimp", "crab", "crayfish", "prawn", "roe", "cockle", "cuttlefish", "loco", "mussel", "octopus", 
-			"oyster", "periwinkle", "scallop", "squid", "escargot", "ribs"],
+			"oyster", "periwinkle", "scallop", "squid", "escargot", "ribs", "fish", "stingray"],
 		"exceptions" : ["vegan cheese", "soy cheese", "nut cheese", "rice cheese", "seed cheese", "soy milk", "almond milk", "hemp milk", "oat milk", "coconut milk", "rice milk", "almond-coconut milk", "quinoa milk", "flax milk"]
 	},
 	"vegetarian" : {
@@ -20,11 +20,17 @@
 			"halibut", "herring", "ilish", "john dory", "kingfish", "lamprey", "lingcod", "mackerel", "mahi mahi", "monkfish", "mullet", "orange roughy", "parrotfish", "patagonian toothfish", 
 			"pike", "pilchard", "pollock", "pomfret", "pompano", "sablefish", "salmon", "sanddab", "sardine", "sea bass", "shad", "shark", "skate", "smelt", "snakehead", "snapper", "sole", 
 			"sprat", "suiter-fish", "sturgeon", "surimi", "swordfish", "tilapia", "tilefish", "trout", "tuna", "turbot", "wahoo", "whitefish", "whiting", "lobster", "shrimp", "crab", "crayfish", "prawn", "roe", "cockle", "cuttlefish", "loco", "mussel", "octopus", 
-			"oyster", "periwinkle", "scallop", "squid", "escargot"],
+			"oyster", "periwinkle", "scallop", "squid", "escargot", "fish", "stingray"],
 		"exceptions" : []
 	},
 	"halal" : {
-		"restrictions" : ["gelatin","bear", "pork", "bacon", "ribs", "alcohol", "wine", "bourbon", "beer", "whiskey", "rum", "vodka"],
+		"restrictions" : ["gelatin","bear", "snake", "pork", "ham", "bacon", "ribs", "alcohol", "wine", "bourbon", "beer", "whiskey", "rum", "vodka"],
+		"exceptions" : ["turkey bacon", "fish gelatin"]
+	},
+	"kosher" : {
+		"restrictions" : ["gelatin","bear", "pork", "ham", "bacon", "ribs", "basa", "bullhead", "catfish", "crab", "dogfish", 
+			"eel", "flake", "leatherjacket", "lumpfish", "marlin", "monkfish", "rock salmon", "rockling", "shark", "shell fish", 
+			"skate", "stargazer", "stingray", "sturgeon", "swordfish", "turbot"],
 		"exceptions" : ["turkey bacon", "fish gelatin"]
 	}
 }

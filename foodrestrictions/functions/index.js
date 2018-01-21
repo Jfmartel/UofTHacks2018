@@ -63,9 +63,9 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
 // })
 
 //Bad -> no results
-// containsRestrictedIngredients('containsRestrictedIngredients', ['peanuts']).then(function(res){
-//     console.log("result:" + res);
-// })
+containsRestrictedIngredients('sjkhfjfdghdkf//', ['peanuts']).then(function(res){
+    console.log("result:" + res);
+})
 
 //Bad -> basic restricted ingredient
 // containsRestrictedIngredients('gelatin', ['vegetarian']).then(function(res){
