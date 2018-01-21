@@ -16,5 +16,10 @@
 			"eel", "flake", "leatherjacket", "lumpfish", "marlin", "monkfish", "rock salmon", "rockling", "shark", "shell fish",
 			"skate", "stargazer", "stingray", "sturgeon", "swordfish", "turbot"],
 		"exceptions" : ["turkey bacon", "fish gelatin"]
+	},
+	"paleo": {
+		"restrictions": ["1900", "2000", "0100"],
+		"exceptions": ["eggs"]
 	}
+
 }

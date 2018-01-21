@@ -142,18 +142,21 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         const food = app.getArgument('food');
         let restricted_ingredients = app.userStorage.restrictions;
         const lifestyle = app.userStorage.lifestyle;
+        const diet = app.userStorage.diet;
         let copiedList = [];
-        if (lifestyle) {
-            if (restricted_ingredients) {
 
-                copiedList = [...restricted_ingredients];
-                copiedList.push(lifestyle);
-            }
-
-            else {
-                copiedList.push(lifestyle);
-            }
+        if (restricted_ingredients) {
+            copiedList = [...restricted_ingredients];
         }
+
+        if (lifestyle) {
+            copiedList.push(lifestyle);
+        }
+
+        if (diet) {
+            copiedList.push(diet);
+        }
+
         if (copiedList) {
             containsRestrictedIngredients(food, copiedList).then(function(ans){
                 if (ans === null){
@@ -191,6 +194,32 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     });
 
+
+    // SET DIET
+    actionMap.set('go_on_diet', function addDietRestriction (app) {
+
+        // for now, only one lifestyle (vegetarian, vegan)? Is there any reason to store more than one?
+        const diet = app.getArgument('diet');
+        app.userStorage.diet = diet;
+
+        app.ask('Ok, I will remember that you are on the ' + diet + ' diet. What else can I help you with?',
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+
+
+    });
+
+    // REMOVE DIET
+    actionMap.set('end_diet', function addDietRestriction (app) {
+
+        // for now, only one lifestyle (vegetarian, vegan)? Is there any reason to store more than one?
+        app.userStorage.diet = null;
+
+        app.ask('Ok, I will remove the diet from your preferences. What else can I help you with?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+
+
+    });
+
     // SET LIFESTYLE (VEGAN, VEGETARIAN)
     actionMap.set('set_food_category', function addLifestyleRestrictions (app) {
 
@@ -215,6 +244,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     actionMap.set('erase_preferences',  function erasePreferences(app) {
         app.userStorage.lifestyle = null;
         app.userStorage.restrictions = null;
+        app.userStorage.diet = null;
 
         app.ask("Your preferences have been erased. Anything else I can do for you?");
     });
@@ -228,7 +258,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         containsRestrictedIngredients(food, [ingredient]).then(function(ans){
           ans ?
-          app.ask("No, " + food + "does not contain " + ingredient + ". Can I help you with something else?",
+          app.ask("No, " + food + " does not contain " + ingredient + ". Can I help you with something else?",
               ["Can I help you?", "What would you like to do?", "We can chat again later"]):
           app.ask("Yes, " + food + " contains " + ingredient + ". Can I help you with something else?",
               ["Can I help you?", "What would you like to do?", "We can chat again later"]);
@@ -256,7 +286,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     // CHECK DIETARY STORED LIFESTYLE
     actionMap.set('get_lifestyle', function checkDietaryLifestyle(app) {
         if(app.userStorage.lifestyle){
-            app.ask('Your lifestyle diet is ' + app.userStorage.lifestyle + '. What else can I help you with?',
+            app.ask('You have indicated you follow a ' + app.userStorage.lifestyle + ' lifestyle. What else can I help you with?',
                 ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
         }
         else{
@@ -265,51 +295,48 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         }
     });
 
+    // CHECK STORED DIET
+    actionMap.set('view_diet', function checkDietaryLifestyle(app) {
+        if(app.userStorage.diet){
+            app.ask('I have recorded that you are on a ' + app.userStorage.diet + ' diet. What else can I help you with?',
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+        }
+        else{
+            app.ask('You haven\'t registered a diet. If you want to learn about the available diets,, you can say "What diets can I go on?". What else can I help you with?',
+                ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+        }
+    });
+
     // CHECK STORED DIETARY RESTRICTIONS/PREFERENCES
     actionMap.set('get_preferences', function checkDietaryRestrictions(app) {
 
-        let response = "You have not indicated any restrictions. If you would like you add one, you could say something like 'I am vegetarian' or 'I am allergic to peanuts' " +
-        "and I will remember it for future interactions.";
+        let response = null;
+
+        let previous = false;
 
         if (app.userStorage.lifestyle) {
+            previous = true;
             if(app.userStorage.lifestyle == "halal" || app.userStorage.lifestyle == "kosher"){
                 response = "You have indicated that you eat " + app.userStorage.lifestyle + " food.";
             }
-            else{
+            else {
                 response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
-            }
-
-            if (app.userStorage.restrictions) {
-                response = response + " Also, you have specified that you cannot eat";
-
-               for (var restriction of app.userStorage.restrictions) {
-                    if(app.userStorage.restrictions.indexOf(restriction) == app.userStorage.restrictions.length - 2){
-                        response = response + " "  + restriction + " and";
-                    }
-                    else{
-                        response = response + " "  + restriction + ",";
-                    }
-                }
-
-                response = response.substring(0, response.length -1) + ".";
             }
         }
 
         if (app.userStorage.restrictions) {
 
-            if(app.userStorage.lifestyle == "halal" || app.userStorage.lifestyle == "kosher"){
-                response = "You have indicated that you eat " + app.userStorage.lifestyle + " food.";
-            }
-            else if(!app.userStorage.lifestyle){
-                response = "";
-            }
-            else{
-                response = "You have indicated that you are " + app.userStorage.lifestyle + ".";
+            if (previous) {
+                response = response + " Also, you have specified that you cannot eat";
             }
 
-            response = response + " Also, you have specified that you cannot eat";
+            else {
+                response = response + "You have specified that you cannot eat";
+                previous = true;
 
-           for (var restriction of app.userStorage.restrictions) {
+            }
+
+            for (var restriction of app.userStorage.restrictions) {
                 if(app.userStorage.restrictions.indexOf(restriction) == app.userStorage.restrictions.length - 2){
                     response = response + " "  + restriction + " and";
                 }
@@ -321,6 +348,24 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             response = response.substring(0, response.length -1) + ".";
         }
 
+        if (app.userStorage.diet) {
+
+            if (previous) {
+                response = response + " You have also indicated that you are on the " + app.userStorage.diet + " diet.";
+            }
+
+            else {
+                response = response + "You are on the " + app.userStorage.diet + " diet.";
+            }
+
+        }
+
+        if (!response) {
+            response = "You have not indicated any restrictions. If you would like you add one, you could say something like 'I am vegetarian' or 'I am allergic to peanuts' " +
+                "and I will remember it for future interactions.";
+        }
+
+        response.trimLeft();
         app.ask(response + " Is there anything else I can help you with?", ["Do you need any more help?", "Is there anything" +
         "I can do for you?", "We can talk later"]);
 
