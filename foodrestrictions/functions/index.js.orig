@@ -12,6 +12,19 @@ function delay(t, v) {
    });
 }
 
+<<<<<<< HEAD
+function isBasicIngredient(food) {
+  for (var category in Ingredients) {
+    if (Ingredients.hasOwnProperty(category)) {
+      if (Ingredients[category].includes(food)){
+        return true
+      }
+    }
+  }
+  return false
+}
+
+=======
 
 function sampleFoodApi(){
 		return Food.getFoodItemUpc('teriyaki sauce').then(function(upc){
@@ -27,17 +40,7 @@ sampleFoodApi().then(function(res){
     console.log("result:" + res);
 })
 
-function isBasicIngredient(food) {
-  for (var category in Ingredients) {
-    if (Ingredients.hasOwnProperty(category)) {
-      if (Ingredients[category].includes(food)){
-        return true
-      }
-    }
-  }
-  return false
-}
-
+>>>>>>> intent-requests
 function containsRestrictedIngredients (food, restricted_ingredients) {
   if (isBasicIngredient(food)) {
     return Food.checkIngredients(food, restricted_ingredients)
