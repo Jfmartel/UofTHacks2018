@@ -43,7 +43,8 @@ function getUpcIngredients(upc) {
   return fetch(constructUri('https://api.nal.usda.gov/ndb/V2/reports', uriArgs))
   .then(function(response){ return response.json(); })
   .then(function(data){
-    return (data.count > 0) ? data.foods[0].food.ing.desc.split(',')
+    console.log(data.foods[0].food)
+    return (data.count > 0 && data.foods[0].food.ing) ? data.foods[0].food.ing.desc.split(',')
       .map(function(i) {
         return i.toLowerCase().trim();
       })
