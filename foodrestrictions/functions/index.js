@@ -177,6 +177,16 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             }
         }
 
+        if (app.userStorage.restrictions) {
+                response = response + " You have specified that you cannot eat";
+
+                for (var restriction of app.userStorage.restrictions) {
+                    response = response + " "  + restriction + ",";
+                }
+
+                response = response.substring(0, response.length -1) + ".";
+        }
+
         app.ask(response + " Is there anything I can help you with?", ["Do you need any more help?", "Is there anything" +
         "I can do for you?", "We can talk later"]);
 
