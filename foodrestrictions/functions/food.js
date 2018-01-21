@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+let fetch = require('node-fetch');
 const FoodRestrictions = require('./food_restrictions.json')
 
 function constructUri(baseUrl, args) {
@@ -27,11 +27,7 @@ function getFoodItemUpc(foodName) {
     'max': 10,
     'sort': 'r'
   }
-  return fetch(constructUri("https://api.nal.usda.gov/ndb/search/", uriArgs),
-  {
-      method: "POST",
-      data: ''
-  })
+  return fetch(constructUri('https://api.nal.usda.gov/ndb/search', uriArgs))
   .then(function(response){ return response.json(); })
   .then(function(data){
     return (!!data.list) ? data.list.item[0].ndbno : null;
@@ -44,11 +40,7 @@ function getUpcIngredients(upc) {
     'ndbno': upc,
     'type': 'f'
   }
-  return fetch(constructUri("https://api.nal.usda.gov/ndb/V2/reports", uriArgs),
-  {
-      method: "POST",
-      data: ''
-  })
+  return fetch(constructUri('https://api.nal.usda.gov/ndb/V2/reports', uriArgs))
   .then(function(response){ return response.json(); })
   .then(function(data){
     return (data.count > 0) ? data.foods[0].food.ing.desc.split(',')
