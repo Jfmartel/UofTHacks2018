@@ -13,7 +13,7 @@ function delay(t, v) {
 
 
 function sampleFoodApi(){
-		return Food.getFoodItemUpc('orange juice').then(function(upc){
+		return Food.getFoodItemUpc('teriyaki sauce').then(function(upc){
 			return delay(1000).then(function() {
 				return Food.getUpcIngredients(upc).then(function(ingr){
 					return Food.checkIngredients(ingr, ['vegetarian'])
@@ -22,9 +22,9 @@ function sampleFoodApi(){
 		})
 }
 
-// sampleFoodApi().then(function(res){
-//     console.log("result:" + res);
-// })
+sampleFoodApi().then(function(res){
+    console.log("result:" + res);
+})
 
 function containsRestrictedIngredients (food, restricted_ingredients) {
     return Food.getFoodItemUpc(food).then(function(upc){
@@ -54,15 +54,22 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     actionMap.set('set_food_inedible', function addIndividualRestriction (app) {
         const ingredient = app.getArgument('ingredient');
 
-        if (app.userStorage.restrictions) {
+        if (app.userStorage.restrictions && !app.userStorage.restrictions.includes(ingredient)) {
             app.userStorage.restrictions.push(ingredient);
+            app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else I can do?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+        }
+        else if(app.userStorage.restrictions.includes(ingredient)){
+            app.ask('It looks like ' + ingredient + ' is already on your list of restricted ingredients. Is there anything else I can do?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
         }
         else {
             app.userStorage.restrictions = [ingredient];
+            app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else I can do?',
+            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
         }
 
-        app.ask('Ok, I will add ' + ingredient + ' to your list of restricted ingredients. Is there anything else I can do?',
-            ['Anything else I can help with?', 'Hey, what else can I do for you?', 'We can talk later']);
+
 
     });
 
