@@ -41,19 +41,36 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
   else{
     return Food.getFoodItemUpc(food).then(function(upc){
       if(!upc){
-        return Promise.resolve(null);
+        return secondaryLookup(food, restricted_ingredients);
       }
       else {
-        console.log("UPC")
-        console.log(upc)
         return Food.getUpcIngredients(upc).then(function(ingr){
             return (ingr === null) ?
-            Promise.resolve(null) :
+            secondaryLookup(food, restricted_ingredients) :
             Food.checkIngredients(ingr, restricted_ingredients);
         })
       }
     })
   }
+}
+
+
+function secondaryLookup (food, restricted_ingredients) {
+  return Food.secondaryGetFoodItemUpc(food).then(function(upc){
+    if(!upc){
+      return Promise.resolve(null);
+    }
+    else {
+      return delay(1100).then(function() {
+              return Food.secondaryGetUpcIngredients(upc).then(function(ingr){
+
+                return (ingr === null) ?
+                Promise.resolve(null) :
+                Food.checkIngredients(ingr, restricted_ingredients);
+              })
+          })
+      }
+  })
 }
 
 //Good -> Basic food
@@ -67,7 +84,7 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
 // })
 
 //Bad -> no results
-// containsRestrictedIngredients('pepperoni', ['vegetarian']).then(function(res){
+// containsRestrictedIngredients('nestle kit kat', ['vegetarian']).then(function(res){
 //     console.log("result:" + res);
 // })
 
@@ -77,7 +94,7 @@ function containsRestrictedIngredients (food, restricted_ingredients) {
 // })
 
 //Bad -> complex restricted ingredient
-// containsRestrictedIngredients('coca cola drink', ['broccoli']).then(function(res){
+// containsRestrictedIngredients('coca cola', ['vegetarian']).then(function(res){
 //     console.log("result:" + res);
 // })
 

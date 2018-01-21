@@ -44,10 +44,9 @@ function getUpcIngredients(upc) {
   return fetch(constructUri('https://api.nal.usda.gov/ndb/V2/reports', uriArgs))
   .then(function(response){ return response.json(); })
   .then(function(data){
-    console.log(data.foods[0].food)
     return (data.count > 0 && data.foods[0].food.ing) ? data.foods[0].food.ing.desc.split(',')
       .map(function(i) {
-        return i.toLowerCase().trim();
+        return i.toLowerCase().trim().replace(/\./g,'');
       })
     : null;
   })
@@ -99,4 +98,68 @@ function checkAgainstRestriction(myRestriction, ingredient) {
   return true
 }
 
-module.exports = {getFoodItemUpc, getUpcIngredients, checkIngredients}
+function secondaryConstructUri(baseUrl, args) {
+  var apiArgs = {
+    'api_key':'k5xhrkhwq7czbr9g8uzdca7c',
+    'sid': '3e1fec7c-7dba-4b43-bd7a-969cec446308',
+    'f': 'json'
+  }
+
+  var url = baseUrl + '?'
+  var arg
+  var uriArgs = Object.assign(apiArgs, args)
+  for (var key in uriArgs) {
+     if (uriArgs.hasOwnProperty(key)) {
+       arg = key + '=' + uriArgs[key] + '&'
+       url += arg
+     }
+  }
+
+  return url.slice(0, -1); // to remove final '&' symbol
+}
+
+function secondaryGetFoodItemUpc(foodName) {
+
+  var uriArgs = {
+    'q': foodName.replace(/ /g, '+'),
+    'n': 1,
+    's': 0
+  }
+  return fetch(secondaryConstructUri('http://api.foodessentials.com/searchprods', uriArgs),
+  {
+      method: "POST",
+      data: ''
+  })
+  .then(function(response){ return response.json(); })
+  .then(function(data){
+    return (data.numFound > 0) ? data.productsArray[0].upc : null;
+  })
+}
+
+function secondaryGetUpcIngredients(upc) {
+
+  var uriArgs = {
+    'u': upc,
+    'n': 1,
+    's': 0
+  }
+  return fetch(secondaryConstructUri('http://api.foodessentials.com/labelarray', uriArgs),
+  {
+      method: "POST",
+      data: ''
+  })
+  .then(function(response){ return response.json(); })
+  .then(function(data){
+    return (data.numFound > 0) ? data.productsArray[0].ingredients.split(',')
+      .map(function(i) {
+        return i.toLowerCase().trim().replace(/\./g,'');
+      })
+    : null;
+  })
+
+  //'SUGAR; WHEAT FLOUR; SKIM MILK; COCOA BUTTER; CHOCOLATE; PALM KERNEL OIL; MILK FAT; LACTOSE (MILK); \
+  //CONTAINS 2% OR LESS OF: LECITHIN (SOY); PGPR; VANILLIN, ARTIFICIAL FLAVOR; SALT; YEAST; BAKING SODA.'
+}
+
+
+module.exports = {getFoodItemUpc, secondaryGetFoodItemUpc, getUpcIngredients, secondaryGetUpcIngredients, checkIngredients}
