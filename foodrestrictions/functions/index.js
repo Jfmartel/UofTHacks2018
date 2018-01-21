@@ -4,6 +4,7 @@
 const functions = require('firebase-functions');
 const DialogflowApp = require('actions-on-google').DialogflowApp;
 const Food = require('./food');
+const Ingredients = require('./ingredients/ingredients.json');
 
 function delay(t, v) {
    return new Promise(function(resolve) {
@@ -11,15 +12,37 @@ function delay(t, v) {
    });
 }
 
-function containsRestrictedIngredients (food, restricted_ingredients) {
-    return Food.getFoodItemUpc(food).then(function(upc){
-        return delay(1000).then(function() {
-            return Food.getUpcIngredients(upc).then(function(ingr){
-                return Food.checkIngredients(ingr, restricted_ingredients)
-            })
-        })
-    })
+function isBasicIngredient(food) {
+  for (var category in Ingredients) {
+    if (Ingredients.hasOwnProperty(category)) {
+      if (Ingredients[category].includes(food)){
+        return true
+      }
+    }
+  }
+  return false
 }
+
+function containsRestrictedIngredients (food, restricted_ingredients) {
+  if (isBasicIngredient(food)) {
+    return Food.checkIngredients(food, restricted_ingredients)
+  }
+  else{
+    return Food.getFoodItemUpc(food).then(function(upc){
+      return delay(1000).then(function() {
+          return Food.getUpcIngredients(upc).then(function(ingr){
+              return Food.checkIngredients(ingr, restricted_ingredients)
+          })
+      })
+    })
+  }
+}
+
+// sampleFoodApi().then(function(res){
+//   console.log(res)
+// })
+
+console.log(isBasicIngredient('broccoli'));
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     console.log('Request headers: ' + JSON.stringify(request.headers));
@@ -162,4 +185,3 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     app.handleRequest(actionMap);
 
 });
-

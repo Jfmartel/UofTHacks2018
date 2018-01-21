@@ -70,6 +70,7 @@ function checkIngredients(ingredients, restrictions) {
             //or: an ingredient ( if not found?)
   //Restrictions is a list of categories / items?
   //Ingredients list is a string (as returned by getUpcIngredients), or is it massaged into a list before?
+  console.log(ingredients)
   return restrictions.every(function(restriction) {         //for each restriction
     return ingredients.every(function(ingredient) {           //check if any ingredient breaks restriction
       return isIngredientAllowed(restriction, ingredient);
